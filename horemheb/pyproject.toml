@@ -1,0 +1,26 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "horemheb"
+authors = [{name = "Jay Salmonson", email = "jdsalmonson@gmail.com"}]
+dynamic = ["version", "description"]
+
+dependencies = [
+        'numpy',
+        'pandas',
+        'scipy',
+        'matplotlib',
+        'astral',
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff", 
+]
+
+[project.scripts]
+#"convert_tflm" = "khufu:convert_tflm.app"
+#"bnn_keras_tuner" = "khufu:bnn_keras_tuner.app"
+#"ha" = "hares_ear:cli.app"

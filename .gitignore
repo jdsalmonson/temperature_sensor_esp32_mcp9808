@@ -1,0 +1,14 @@
+.venv*
+build
+esp32_wifi/managed_components/
+esp32_wifi/build/
+notebooks/*.csv
+scripts/*.csv
+esp32/
+.DS_Store
+.vscode
+*.pyc
+*.org
+*~
+
+

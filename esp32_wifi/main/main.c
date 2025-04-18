@@ -22,7 +22,7 @@
 
 // WiFi credentials
 #define WIFI_SSID      "JnLNet"
-#define WIFI_PASS      "Salmonsonport"
+#define WIFI_PASS      "*****"
 
 // MCP9808 registers
 #define REG_CONFIG 0x01

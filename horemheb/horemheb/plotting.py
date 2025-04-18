@@ -6,7 +6,11 @@ import matplotlib.dates as mdates
 from .analysis import linear_func, linear_func_through_origin
 
 
-def plot_linear_fit(segments, results, sup_title, config=None, smoothed_window=60):
+def plot_linear_fit(segments, results, sup_title, 
+                    config=None, 
+                    smoothed_window=60,
+                    plot_Ax_b_fit: bool = True
+                    ):
     """
     Plot linear fit analysis for a single door type.
     
@@ -79,11 +83,18 @@ def plot_linear_fit(segments, results, sup_title, config=None, smoothed_window=6
     # Plot the fit lines using pre-calculated results
     # x_all = np.concatenate([seg['temp1'].values for seg in segments])
     x_fit = np.linspace(min(x_all), max(x_all), 100)
-    fit_line, = ax1.plot(x_fit, linear_func(x_fit, results.A, results.b), 'k-', 
-                        label=f'Fit: {results.A:.3f}x + {results.b:.3f}')
-    fit_line_0, = ax1.plot(x_fit, linear_func_through_origin(x_fit, results.A0), 'k--', 
-                          label=f'Fit: {results.A0:.3f}x')
 
+    fit_line_0, = ax1.plot(x_fit, linear_func_through_origin(x_fit, results.A0), 'k-', 
+                            label=f'Fit: {results.A0:.3f}x')
+    
+    title_Ax_b = ''
+    if plot_Ax_b_fit:
+        fit_line, = ax1.plot(x_fit, linear_func(x_fit, results.A, results.b), 'k--', 
+                            label=f'Fit: {results.A:.3f}x + {results.b:.3f}')
+        
+        title_Ax_b = f'temp_diff = {results.A:.3f}*cooling_rate + {results.b:.3f}, R² = {results.r_squared:.3f}\nb=0 fit: '
+
+    
     if config is not None:
         delay_time = config.delay_time
         before_sunrise_delta_minutes = config.before_sunrise_delta_minutes
@@ -92,18 +103,17 @@ def plot_linear_fit(segments, results, sup_title, config=None, smoothed_window=6
         title_suffix = ''
 
     # Customize plots
-    ax1.set_xlabel('Cooling Rate (°C/hour)')
-    ax1.set_ylabel('Temperature Difference (°C)')
+    ax1.set_xlabel('Cooling Rate -dT$_{i}$/dt (°C/hour)')
+    ax1.set_ylabel('Temperature Difference T$_{i}$ - T$_{o}$ (°C)')
     ax1.set_title('Temperature Difference vs Cooling Rate\n' +
-                  title_suffix +
-                  f'temp_diff = {results.A:.3f}*cooling_rate + {results.b:.3f}, R² = {results.r_squared:.3f}\n'
-                  f'b=0 fit: temp_diff = {results.A0:.3f}*cooling_rate, R² = {results.r_squared0:.3f}')
+                  title_suffix + title_Ax_b +
+                  '(T$_{i}$ - T$_{o}$) = ' + f'{results.A0:.3f}' + '*(dT$_{i}$/dt), ' + f'R² = {results.r_squared0:.3f}')
     ax1.set_ylim(0, 14.2)
     ax1.legend(loc='lower right')
     ax1.grid(True)
 
-    ax2.set_xlabel('Cooling Rate (°C/hour)')
-    ax2.set_ylabel('Residuals (°C)')
+    ax2.set_xlabel('Cooling Rate -dT$_{i}$/dt (°C/hour)')
+    ax2.set_ylabel('Residuals T$_{i}$ - T$_{o}$ - (A*dT$_{i}$/dt + b) (°C)')
     ax2.set_title('Residuals')
     ax2.grid(True)
     ax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)
@@ -112,7 +122,9 @@ def plot_linear_fit(segments, results, sup_title, config=None, smoothed_window=6
     plt.tight_layout()
     plt.show()
 
-def plot_linear_fit_comparison(new_segments, old_segments, new_results, old_results, sup_title, smoothed_window=60):
+def plot_linear_fit_comparison(new_segments, old_segments, new_results, old_results, sup_title, 
+                               smoothed_window=60, 
+                               plot_Ax_b_fit: bool = True):
     """
     Plot and compare fits for both new and old door segments.
     
@@ -205,17 +217,24 @@ def plot_linear_fit_comparison(new_segments, old_segments, new_results, old_resu
         #x_all = np.concatenate([seg['temp1'].values for seg in segments])
         x_fit = np.linspace(min(x_all), max(x_all), 100)
         
-        fit_line, = ax1.plot(x_fit, linear_func(x_fit, results.A, results.b), '-', 
-                            color=color, label=f'Fit: {results.A:.3f}x + {results.b:.3f}, R² = {results.r_squared:.3f}')
-        fit_line_0, = ax1.plot(x_fit, linear_func_through_origin(x_fit, results.A0), '--', 
-                              color=color, label=f'A0 Fit: {results.A0:.3f}x, R² = {results.r_squared0:.3f}')
-                
+        fit_line_0, = ax1.plot(x_fit, linear_func_through_origin(x_fit, results.A0), '-', 
+                              color=color, label=f'Fit: {results.A0:.3f}x, R² = {results.r_squared0:.3f}')
+        if plot_Ax_b_fit:
+            fit_line, = ax1.plot(x_fit, linear_func(x_fit, results.A, results.b), '--', 
+                                color=color, label=f'Ax+bFit: {results.A:.3f}x + {results.b:.3f}, R² = {results.r_squared:.3f}')                
+        
         if door_type == 'New Door':
-            new_handles.extend([fit_line, fit_line_0])
-            new_labels.extend([fit_line.get_label(), fit_line_0.get_label()])
+            new_handles.extend([fit_line_0])
+            new_labels.extend([fit_line_0.get_label()])
+            if plot_Ax_b_fit:
+                new_handles.append(fit_line)
+                new_labels.append(fit_line.get_label())
         else:
-            old_handles.extend([fit_line, fit_line_0])
-            old_labels.extend([fit_line.get_label(), fit_line_0.get_label()])
+            old_handles.extend([fit_line_0])
+            old_labels.extend([fit_line_0.get_label()])
+            if plot_Ax_b_fit:
+                old_handles.append(fit_line)
+                old_labels.append(fit_line.get_label())
     
     # Create separate legends for new and old door data
     # new_labels = [h.get_label() for h in new_handles]
@@ -226,14 +245,15 @@ def plot_linear_fit_comparison(new_segments, old_segments, new_results, old_resu
     ax1.add_artist(ax1.legend(old_handles, old_labels, loc='lower right', title='Old Door'))
     
     # Customize plots
-    ax1.set_xlabel('Cooling Rate (°C/hour)')
-    ax1.set_ylabel('Temperature Difference (°C)')
+    ax1.set_xlabel('Cooling Rate -dT$_{i}$/dt (°C/hour)')
+    ax1.set_ylabel('Temperature Difference T$_{i}$ - T$_{o}$ (°C)')
     ax1.set_title('Temperature Difference vs Cooling Rate\n(between delay_time and sunrise_time)')
     ax1.set_ylim(0, 14.2)
+    ax1.set_xlim(0, None)
     ax1.grid(True)
 
-    ax2.set_xlabel('Cooling Rate (°C/hour)')
-    ax2.set_ylabel('Residuals (°C)')
+    ax2.set_xlabel('Cooling Rate -dT$_{i}$/dt (°C/hour)')
+    ax2.set_ylabel('Residuals T$_{i}$ - T$_{o}$ - (A*dT$_{i}$/dt) (°C)')
     ax2.set_title('Residuals')
     ax2.grid(True)
     ax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)
@@ -263,9 +283,9 @@ def plot_all_segments(segments, results, sup_title, config=None, smoothed_window
         
         # Plot temperatures on first subplot (keeping original style)
         ax1.plot(segment['temp1'].index, segment['temp1'].values, '-r', 
-                linewidth=1.5, label=f'Sensor 1: Ta' + suffix)
+                linewidth=1.5, label='Sensor 1: T$_{i}$' + suffix)
         ax1.plot(segment['temp2'].index, segment['temp2'].values, '-b', 
-                linewidth=1.5, label=f'Sensor 2: To' + suffix)
+                linewidth=1.5, label='Sensor 2: T$_{o}$' + suffix)
         
         # Calculate temperature difference
         temp_diff = segment['temp1'] - segment['temp2']
@@ -277,11 +297,11 @@ def plot_all_segments(segments, results, sup_title, config=None, smoothed_window
         
         # Plot temperature difference in three parts
         ax2.plot(temp_diff[mask_before_delay].index, temp_diff[mask_before_delay].values, '--k', 
-                linewidth=1.5, label='Ta - To (before delay)')
+                linewidth=1.5, label='T$_{i}$ - T$_{o}$ (before delay)')
         ax2.plot(temp_diff[mask_main].index, temp_diff[mask_main].values, '-k', 
-                linewidth=1.5, label='Ta - To (main)')
+                linewidth=1.5, label='T$_{i}$ - T$_{o}$ (main)')
         ax2.plot(temp_diff[mask_after_sunrise].index, temp_diff[mask_after_sunrise].values, '--k', 
-                linewidth=1.5, label='Ta - To (after sunrise)')
+                linewidth=1.5, label='T$_{i}$ - T$_{o}$ (after sunrise)')
         
         # Calculate cooling rate
         regular_time = pd.date_range(start=segment['temp1'].index[0], 
@@ -308,11 +328,11 @@ def plot_all_segments(segments, results, sup_title, config=None, smoothed_window
         # Plot scaled cooling rate in three parts
         scaled_cooling = A*(-dT_dt_smooth) + b
         ax2.plot(regular_time[mask_before_delay], scaled_cooling[mask_before_delay], '--m', alpha=0.7,
-                label='Cooling Rate dTa/dt (before delay)')
+                label='Cooling Rate -dT$_{i}$/dt (before delay)')
         ax2.plot(regular_time[mask_main], scaled_cooling[mask_main], '-m', alpha=0.7,
-                label='Cooling Rate dTa/dt (main)')
+                label='Cooling Rate -dT$_{i}$/dt (main)')
         ax2.plot(regular_time[mask_after_sunrise], scaled_cooling[mask_after_sunrise], '--m', alpha=0.7,
-                label='Cooling Rate dTa/dt (after sunrise)')
+                label='Cooling Rate -dT$_{i}$/dt (after sunrise)')
         
         # Rest of the plotting code remains the same...
         # [Previous axis formatting, limits, labels, etc.]
@@ -323,7 +343,7 @@ def plot_all_segments(segments, results, sup_title, config=None, smoothed_window
         
         # Set y1 limits to include all temperature difference data
         y1_min = min(0, diff_min)
-        y1_max = max(22, diff_max)
+        y1_max = max(25, diff_max)
         ax2.set_ylim(y1_min, y1_max)
         
         # Calculate corresponding y2 limits using y2 = (y1 - b)/A
@@ -347,8 +367,8 @@ def plot_all_segments(segments, results, sup_title, config=None, smoothed_window
         ax2.set_title(f'Temperature Difference and Scaled Cooling Rate\n'
                     f'(A = {A:.3f}, b = {b:.3f})')
         ax2.set_xlabel('Time')
-        ax2.set_ylabel('Temperature Difference (°C)')
-        ax2_rate.set_ylabel('Cooling Rate (°C/hour)', color='r')
+        ax2.set_ylabel('Temperature Difference T$_{i}$ - T$_{o}$ (°C)')
+        ax2_rate.set_ylabel('Cooling Rate -dT$_{i}$/dt (°C/hour)', color='m')
         
         # Set up grid for both plots
         for ax in [ax1, ax2]:
@@ -361,8 +381,8 @@ def plot_all_segments(segments, results, sup_title, config=None, smoothed_window
             ax.grid(True, axis='y', linestyle='--', alpha=0.3)
             plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
         
-        # Color cooling rate ticks red
-        ax2_rate.tick_params(axis='y', colors='r')
+        # Color cooling rate ticks magenta
+        ax2_rate.tick_params(axis='y', colors='m')
         
         # Add legends
         ax1.legend(loc='center left')

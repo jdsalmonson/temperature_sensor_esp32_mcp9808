@@ -372,8 +372,8 @@ def plot_parametric_curves(segments, result_dict, sup_title=""):
     # Set plot properties
     plt.xlim(0, None)
     plt.ylim(0, None)
-    plt.xlabel('dTa/dt (°C/hour)')
-    plt.ylabel('Ta - To (°C)')
+    plt.xlabel('-dT$_{i}$/dt (°C/hour)')
+    plt.ylabel('T$_{i}$ - T$_{o}$ (°C)')
     plt.title(sup_title + ':\n Parametric Curves: Temperature Difference vs Rate of Change')
     plt.grid(True, alpha=0.3)
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
@@ -470,8 +470,8 @@ def plot_combined_parametric_curves(segments1, result_dict1, sup_title1,
     # Set plot properties
     plt.xlim(0, None)
     plt.ylim(0, None)
-    plt.xlabel('dTa/dt (°C/hour)')
-    plt.ylabel('Ta - To (°C)')
+    plt.xlabel('-dT$_{i}$/dt (°C/hour)')
+    plt.ylabel('T$_{i}$ - T$_{o}$ (°C)')
     plt.title(f'Parametric Curves: Temperature Difference vs Rate of Change\n{sup_title1} vs {sup_title2}')
     plt.grid(True, alpha=0.3)
     
@@ -548,14 +548,14 @@ def plot_optimize_k3_over_k1_k2(segments, sup_title,
     
     # Plot k3 contour
     contour1 = ax1.contourf(k1_mesh, k2_mesh, k3_grid, levels=25)
-    ax1.set_xlabel('k1')
-    ax1.set_ylabel('k2')
-    ax1.set_title('Optimized k3 values')
-    plt.colorbar(contour1, ax=ax1, label='k3')
+    ax1.set_xlabel('K$_{1}$')
+    ax1.set_ylabel('K$_{2}$')
+    ax1.set_title('Optimized K$_{3}$ values')
+    plt.colorbar(contour1, ax=ax1, label='K$_{3}$')
     
     # Add best point marker and label for k3 plot if requested
     if mark_best:
-        ax1.plot(best_k1, best_k2, 'w*', markersize=10, label=f'Best: k3={best_k3:.4f}, A={1./best_k3:.3f} hr')
+        ax1.plot(best_k1, best_k2, 'w*', markersize=10, label=f'Best: K$_{3}$={best_k3:.4f}, 1/K$_{3}$={1./best_k3:.3f} hr')
         #ax1.annotate(f'k3={best_k3:.4f}', 
         #            xy=(best_k1, best_k2), 
         #            xytext=(10, 10), 
@@ -566,10 +566,10 @@ def plot_optimize_k3_over_k1_k2(segments, sup_title,
     
     # Plot R-squared contour
     contour2 = ax2.contourf(k1_mesh, k2_mesh, r_squared_grid, levels=25)
-    ax2.set_xlabel('k1')
-    ax2.set_ylabel('k2')
-    ax2.set_title('R-squared values')
-    plt.colorbar(contour2, ax=ax2, label='R-squared')
+    ax2.set_xlabel('K$_{1}$')
+    ax2.set_ylabel('K$_{2}$')
+    ax2.set_title('R$^{2}$ values')
+    plt.colorbar(contour2, ax=ax2, label='R$^{2}$')
     
     # Add best point marker and label for R-squared plot if requested
     if mark_best:
@@ -586,10 +586,10 @@ def plot_optimize_k3_over_k1_k2(segments, sup_title,
     
     # Print the results
     print(f"\n{sup_title} Best parameter combination:")
-    print(f"k1 = {best_k1:.6f}")
-    print(f"k2 = {best_k2:.6f}")
-    print(f"k3 = {best_k3:.6f}")
-    print(f"R-squared = {best_r_squared:.6f}")
+    print(f"K$_{1}$ = {best_k1:.6f}")
+    print(f"K$_{2}$ = {best_k2:.6f}")
+    print(f"K$_{3}$ = {best_k3:.6f}")
+    print(f"R$^{2}$ = {best_r_squared:.6f}")
     
     print(f"\n{sup_title} Best parameters: {best_params}")
 
@@ -853,9 +853,9 @@ def plot_all_segments_with_solution(segments, result_dict, sup_title, config=Non
         
         # Plot original temperature data
         ax1.plot(segment['temp1'].index, segment['temp1'].values, '.r', 
-                alpha=0.3, label=f'Sensor 1 Ta (raw)' + suffix)
+                alpha=0.3, label='Sensor 1 T$_{i}$ (raw)' + suffix)
         ax1.plot(segment['temp2'].index, segment['temp2'].values, '.b', 
-                alpha=0.3, label=f'Sensor 2 To (raw)' + suffix)
+                alpha=0.3, label='Sensor 2 T$_{o}$ (raw)' + suffix)
         
         # Get ODE solution
         precomputed = precompute_data(*get_time_temps(segment))
@@ -876,11 +876,11 @@ def plot_all_segments_with_solution(segments, result_dict, sup_title, config=Non
         
         # Plot ODE solutions
         ax1.plot(solution_times, solution.y[0], '-r', 
-                linewidth=2, label='Ta(t) solution')
+                linewidth=2, label='T$_{i}$(t) solution')
         ax1.plot(solution_times, solution.y[1], '-g', 
-                linewidth=2, label='Tw(t) solution')
+                linewidth=2, label='T$_{w}$(t) solution')
         ax1.plot(solution_times, t2_interp(solution.t), '--b', 
-                linewidth=2, label='To(t) interpolated')
+                linewidth=2, label='T$_{o}$ interpolated')
         
         # Calculate temperature difference
         temp_diff = segment['temp1'] - segment['temp2']
@@ -893,15 +893,15 @@ def plot_all_segments_with_solution(segments, result_dict, sup_title, config=Non
         
         # Plot temperature difference data
         ax2.plot(temp_diff[mask_before_delay].index, temp_diff[mask_before_delay].values, '.k', 
-                alpha=0.3) #, label='Ta - To (before delay)')
+                alpha=0.3, label='T$_{i}$ - T$_{o}$ (before delay)')
         ax2.plot(temp_diff[mask_main].index, temp_diff[mask_main].values, '.k', 
-                alpha=0.3, label='Ta - To (main)')
+                alpha=0.3, label='T$_{i}$ - T$_{o}$ (main)')
         ax2.plot(temp_diff[mask_after_sunrise].index, temp_diff[mask_after_sunrise].values, '.k', 
-                alpha=0.3, label='Ta - To (after sunrise)')
+                alpha=0.3, label='T$_{i}$ - T$_{o}$ (after sunrise)')
         
         # Plot solution temperature difference
         ax2.plot(solution_times, temp_diff_solution, '-k', 
-                linewidth=2, label='Ta - To solution')
+                linewidth=2, label='T$_{i}$ - T$_{o}$ solution')
         
         # Calculate and plot cooling rate from data
         regular_time = pd.date_range(start=segment['temp1'].index[0], 
@@ -937,20 +937,20 @@ def plot_all_segments_with_solution(segments, result_dict, sup_title, config=Non
         ax2.plot(regular_time[mask_before_delay], scaled_cooling[mask_before_delay], '--m', alpha=0.7,
         ) #label='Cooling Rate dTa/dt (data, before delay)')
         ax2.plot(regular_time[mask_main], scaled_cooling[mask_main], '-m', alpha=0.7,
-                label='Cooling Rate dTa/dt (data, main)')
+                label='Cooling Rate dT$_{i}$/dt (data, main)')
         ax2.plot(regular_time[mask_after_sunrise], scaled_cooling[mask_after_sunrise], '--m', alpha=0.7,
-                label='Cooling Rate dTa/dt (data, after sunrise)')
+                label='Cooling Rate dT$_{i}$/dt (data, after sunrise)')
         
         # Plot solution-based cooling rate
         ax2.plot(solution_times, scaled_cooling_solution, '-m', alpha=0.4, linewidth=3,
-                label='Cooling Rate dTa/dt (solution)')
+                label='Cooling Rate dT$_{i}$/dt (solution)')
         
         # Set axis limits and labels
         diff_min = min(temp_diff.min(), temp_diff_solution.min())
         diff_max = max(temp_diff.max(), temp_diff_solution.max())
         
         y1_min = min(0, diff_min)
-        y1_max = max(22, diff_max)
+        y1_max = max(25, diff_max)
         ax2.set_ylim(y1_min, y1_max)
         
         y2_min = (y1_min - b)/A
@@ -972,7 +972,7 @@ def plot_all_segments_with_solution(segments, result_dict, sup_title, config=Non
                      f'(A = {A:.3f}, b = {b:.3f})')
         ax2.set_xlabel('Time')
         ax2.set_ylabel('Temperature Difference (°C)')
-        ax2_rate.set_ylabel('Cooling Rate (°C/hour)', color='r')
+        ax2_rate.set_ylabel('Cooling Rate (°C/hour)', color='m')
         
         # Set up grid
         for ax in [ax1, ax2]:
@@ -985,7 +985,7 @@ def plot_all_segments_with_solution(segments, result_dict, sup_title, config=Non
             ax.grid(True, axis='y', linestyle='--', alpha=0.3)
             plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
         
-        ax2_rate.tick_params(axis='y', colors='r')
+        ax2_rate.tick_params(axis='y', colors='m')
         
         # Add legends
         ax1.legend(loc='center left')

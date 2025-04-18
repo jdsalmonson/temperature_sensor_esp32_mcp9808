@@ -122,7 +122,7 @@ def time_dependent_func(X, A, b):
     x, t = X
     return A * x / (1 + b * t)
 
-def analyze_segments_time_dependent(segments: List[Dict[str, Any]], config: AnalysisConfig) -> FitResults:
+def analyze_segments_time_dependent(segments: List[Dict[str, Any]], config: AnalysisConfig, reverse_time: bool = False) -> FitResults:
     """Analyze temperature segments and perform fit with time dependence"""
     x_all = []
     y_all = []
@@ -173,7 +173,12 @@ def analyze_segments_time_dependent(segments: List[Dict[str, Any]], config: Anal
             t_section = ((regular_time[mask_main][valid_data] - segment['delay_time'])
                         .total_seconds() / 3600)  # convert to hours
             #print(t_section)
-            
+
+            if reverse_time:
+                t_section = np.array(t_section)
+                t_section = t_section[-1] - t_section
+                t_section = list(t_section)
+
             x_all.extend(x_section)
             y_all.extend(y_section)
             t_all.extend(t_section)
@@ -184,7 +189,7 @@ def analyze_segments_time_dependent(segments: List[Dict[str, Any]], config: Anal
     
     # Perform fit with time dependence
     popt, pcov = curve_fit(lambda X, A, b: time_dependent_func((X[0], X[1]), A, b),
-                          (x_all, t_all), y_all)
+                          (y_all, t_all), x_all)
     
     A, b = popt
     A_err, b_err = np.sqrt(np.diag(pcov))

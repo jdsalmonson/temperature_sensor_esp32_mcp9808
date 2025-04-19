@@ -7,7 +7,7 @@ Highlights of key directories or files of interest are
 - [esp32_wifi](esp32_wifi) - the build directory for the ESP-IDF code project for the ESP32 microcontroller-based temperature sensors.
   - [README.md](esp32_wifi/README.md) - a rudimentary README file for the microcontroller.
   - [main.c](esp32_wifi/main/main.c) - key source file for microcontroller.
-- [query_sensors.py](scripts/query_sensors.py) - Python script to query ESP32 temperature sensors and log data.
+- [temperature_logger.py](scripts/temperature_logger.py) - Python script to query ESP32 temperature sensors and log data.
 - [horemheb](horemheb/horemheb) - Python package (named after an [Egyptian pharoah](https://en.wikipedia.org/wiki/Horemheb)) of tools for analysis and plots produced in this blog.
 - [100_400_plot_temperature.ipynb](notebooks/100_400_plot_temperature.ipynb) - plot raw temperature data.
 - [200_200_analyze_temperature_over_params.ipynb](notebooks/200_200_analyze_temperature_over_params.ipynb) - Analysis of data, application of Newton's Law of Cooling.

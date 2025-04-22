@@ -1,6 +1,6 @@
 ## temperature_sensor_esp32_mcp9808
 
-This is the repository for data and analysis for my blog post [Quantifying the Thermal Benefits of Replacement of my House's Front Door](https://jdsalmonson.github.io/livermore-summer-2024/).
+This is the repository for data and analysis for my blog post [Quantifying the Thermal Benefits of Replacement of my House's Front Door](https://jdsalmonson.github.io/new_door_thermo/).
 
 Highlights of key directories or files of interest are
 
